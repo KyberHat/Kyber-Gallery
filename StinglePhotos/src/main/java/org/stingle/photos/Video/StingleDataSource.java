@@ -6,6 +6,7 @@ import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.goterl.lazysodium.SodiumAndroid;
 import com.goterl.lazysodium.interfaces.AEAD;
 
@@ -69,6 +70,11 @@ public class StingleDataSource implements DataSource {
 		} catch (CryptoException e) {
 			throw new IOException("Error getting file header");
 		}
+	}
+
+	@Override
+	public void addTransferListener(TransferListener transferListener) {
+
 	}
 
 	@Override

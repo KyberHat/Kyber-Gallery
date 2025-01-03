@@ -18,12 +18,13 @@ import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -368,14 +369,17 @@ public class ViewItemAsyncTask extends AsyncTask<Void, Integer, ViewItemAsyncTas
 			}
 
 
-			SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(
-					new DefaultRenderersFactory(context),
-					new DefaultTrackSelector(), new DefaultLoadControl());
+			SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+					.setTrackSelector(new DefaultTrackSelector(context))
+					.setLoadControl(new DefaultLoadControl())
+					.build();
+
 			adapter.addPlayer(position, player);
 
 
 			playerView.setPlayer(player);
 			player.addListener(getPlayerEventListener());
+
 
 			MediaSource mediaSource = null;
 			if (result.isRemote) {
@@ -386,16 +390,21 @@ public class ViewItemAsyncTask extends AsyncTask<Void, Integer, ViewItemAsyncTas
 					StingleHttpDataSource http = new StingleHttpDataSource("stingle", null);
 					StingleDataSourceFactory stingle = new StingleDataSourceFactory(context, http, videoFileHeader);
 
-					mediaSource = new ExtractorMediaSource.Factory(stingle).createMediaSource(uri);
+					MediaItem mediaItem = MediaItem.fromUri(uri);
+					mediaSource = new DefaultMediaSourceFactory(stingle).createMediaSource(mediaItem);
 				}
 			} else {
 				Uri uri = Uri.fromFile(new File(FileManager.getHomeDir(context) + "/" + result.filename));
 				FileDataSource file = new FileDataSource();
 				StingleDataSourceFactory stingle = new StingleDataSourceFactory(context, file, videoFileHeader);
-				mediaSource = new ExtractorMediaSource.Factory(stingle).createMediaSource(uri);
+
+				MediaItem mediaItem = MediaItem.fromUri(uri);
+				mediaSource = new DefaultMediaSourceFactory(stingle).createMediaSource(mediaItem);
 			}
 
 			if (mediaSource != null) {
+				player.setMediaSource(mediaSource);
+				player.prepare();
 				player.setPlayWhenReady(false);
 
 				/*if(adapter.getCurrentPosition() == position) {
@@ -426,68 +435,74 @@ public class ViewItemAsyncTask extends AsyncTask<Void, Integer, ViewItemAsyncTas
 		}
 	}
 
-	private Player.EventListener getPlayerEventListener() {
+	private Player.Listener getPlayerEventListener() {
 		ContentLoadingProgressBar loading = loadingRef.get();
 		if(loading == null){
 			return null;
 		}
-		return new Player.EventListener() {
+		return new Player.Listener() {
 			@Override
-			public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
-
-			}
-
-			@Override
-			public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-
-			}
-
-			@Override
-			public void onLoadingChanged(boolean isLoading) {
-
-			}
-
-			@Override
-			public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-				if (playbackState == ExoPlayer.STATE_BUFFERING) {
-					loading.setVisibility(View.VISIBLE);
-					Log.d("buffering", "yes");
-				} else {
-					loading.setVisibility(View.INVISIBLE);
-					Log.d("buffering", "no");
-				}
-			}
-
-			@Override
-			public void onRepeatModeChanged(int repeatMode) {
-
-			}
-
-			@Override
-			public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-
-			}
-
-			@Override
-			public void onPlayerError(ExoPlaybackException error) {
-
-			}
-
-			@Override
-			public void onPositionDiscontinuity(int reason) {
-
-			}
-
-			@Override
-			public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-
-			}
-
-			@Override
-			public void onSeekProcessed() {
-
+			public void onEvents(Player player, Player.Events events) {
+				Player.Listener.super.onEvents(player, events);
 			}
 		};
+//		return new Player.EventListener() {
+//			@Override
+//			public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+//
+//			}
+//
+//			@Override
+//			public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+//
+//			}
+//
+//			@Override
+//			public void onLoadingChanged(boolean isLoading) {
+//
+//			}
+//
+//			@Override
+//			public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+//				if (playbackState == ExoPlayer.STATE_BUFFERING) {
+//					loading.setVisibility(View.VISIBLE);
+//					Log.d("buffering", "yes");
+//				} else {
+//					loading.setVisibility(View.INVISIBLE);
+//					Log.d("buffering", "no");
+//				}
+//			}
+//
+//			@Override
+//			public void onRepeatModeChanged(int repeatMode) {
+//
+//			}
+//
+//			@Override
+//			public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+//
+//			}
+//
+//			@Override
+//			public void onPlayerError(ExoPlaybackException error) {
+//
+//			}
+//
+//			@Override
+//			public void onPositionDiscontinuity(int reason) {
+//
+//			}
+//
+//			@Override
+//			public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+//
+//			}
+//
+//			@Override
+//			public void onSeekProcessed() {
+//
+//			}
+//		};
 	}
 
 	public static void removeRemainingGetOriginalTasks(){

@@ -75,4 +75,11 @@
         <item name="android:button">@drawable/checkbox_selector</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
+
+
+    <style name="ExoMediaButton.Shuffle" parent="Widget.AppCompat.Button">
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:textColor">?attr/colorAccent</item>
+    </style>
+
 </resources>

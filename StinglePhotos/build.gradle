@@ -12,33 +12,33 @@ keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 
 android {
-    signingConfigs {
-        release {
-            storeFile file(keystoreProperties['storeFile'])
-            keyAlias keystoreProperties['keyAlias']
-            storePassword keystoreProperties['storePassword']
-            keyPassword keystoreProperties['keyPassword']
-        }
-    }
+//    signingConfigs {
+//        release {
+//            storeFile file(keystoreProperties['storeFile'])
+//            keyAlias keystoreProperties['keyAlias']
+//            storePassword keystoreProperties['storePassword']
+//            keyPassword keystoreProperties['keyPassword']
+//        }
+//    }
     defaultConfig {
         applicationId "org.stingle.photos"
         minSdkVersion 23
-        targetSdkVersion 34
-        compileSdk 34
+        targetSdkVersion 35
+        compileSdk 35
         versionCode 57
         versionName "2.11.0"
     }
     buildTypes {
-        release {
-            signingConfig signingConfigs.release
-            resValue "string", "app_name", "Stingle Photos"
-            resValue "string", "camera", "Camera"
-            resValue "string", "content_provider", "org.stingle.photos.share"
-            resValue "string", "api_server_url", "https://api.stingle.org/"
-            resValue "string", "default_home_folder_name", "StinglePhotos"
-            buildConfigField "Boolean", "ALLOW_INSECURE_TLS", 'false'
-            debuggable false
-        }
+//        release {
+//            signingConfig signingConfigs.release
+//            resValue "string", "app_name", "Stingle Photos"
+//            resValue "string", "camera", "Camera"
+//            resValue "string", "content_provider", "org.stingle.photos.share"
+//            resValue "string", "api_server_url", "https://api.stingle.org/"
+//            resValue "string", "default_home_folder_name", "StinglePhotos"
+//            buildConfigField "Boolean", "ALLOW_INSECURE_TLS", 'false'
+//            debuggable false
+//        }
         debug {
             applicationIdSuffix '.debug'
             versionNameSuffix '-debug'
@@ -72,33 +72,36 @@ android {
     namespace 'org.stingle.photos'
 }
 
-dependencies {
-    implementation "com.goterl:lazysodium-android:5.0.2@aar"
-    implementation 'net.java.dev.jna:jna:5.10.0@aar'
-    implementation 'com.google.android.exoplayer:exoplayer:2.7.3'
-    implementation 'androidx.core:core:1.9.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.android.material:material:1.8.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.exifinterface:exifinterface:1.3.6'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'androidx.preference:preference:1.2.0'
-    implementation "androidx.biometric:biometric:1.1.0"
-    implementation 'com.google.android:flexbox:2.0.1'
-    implementation "androidx.work:work-runtime:2.8.1"
-    implementation project(path: ':picasso')
+    dependencies {
+        implementation "com.goterl:lazysodium-android:5.0.2@aar"
+        implementation 'net.java.dev.jna:jna:5.10.0@aar'
+        implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
 
-    playstoreImplementation 'com.android.billingclient:billing:5.2.1'
+        implementation 'androidx.core:core:1.9.0'
+        implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+        implementation 'com.google.android.material:material:1.8.0'
+        implementation 'androidx.appcompat:appcompat:1.6.1'
+        implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+        implementation 'androidx.exifinterface:exifinterface:1.3.6'
+        implementation 'androidx.recyclerview:recyclerview:1.1.0'
+        implementation 'androidx.preference:preference:1.2.0'
+        implementation "androidx.biometric:biometric:1.1.0"
+        implementation 'com.google.android.flexbox:flexbox:3.0.0'
+        implementation "androidx.work:work-runtime:2.10.0"
+        implementation project(path: ':picasso')
 
-    // CameraX
-    implementation "androidx.camera:camera-core:1.1.0-alpha12"
-    implementation "androidx.camera:camera-camera2:1.1.0-alpha12"
-    implementation "androidx.camera:camera-lifecycle:1.1.0-alpha12"
-    implementation 'androidx.camera:camera-view:1.0.0-alpha32'
-    implementation 'androidx.camera:camera-video:1.1.0-alpha12'
-    implementation 'androidx.camera:camera-extensions:1.0.0-alpha32'
-    implementation 'androidx.window:window:1.0.0-alpha09'
+        playstoreImplementation 'com.android.billingclient:billing:5.2.1'
 
-    debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
-}
+        // CameraX
+        implementation "androidx.camera:camera-core:1.1.0-alpha12"
+        implementation "androidx.camera:camera-camera2:1.1.0-alpha12"
+        implementation "androidx.camera:camera-lifecycle:1.1.0-alpha12"
+        implementation 'androidx.camera:camera-view:1.0.0-alpha32'
+        implementation 'androidx.camera:camera-video:1.1.0-alpha12'
+        implementation 'androidx.camera:camera-extensions:1.0.0-alpha32'
+        implementation 'androidx.window:window:1.0.0-alpha09'
+
+//        debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
+        debugImplementation 'com.github.amitshekhariitbhu.Android-Debug-Database:debug-db:1.0.7'
+    }
+

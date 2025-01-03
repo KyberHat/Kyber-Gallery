@@ -1,6 +1,7 @@
 package org.stingle.photos.Video;
 
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -8,8 +9,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.EOFException;
@@ -25,11 +26,11 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StingleHttpDataSource implements HttpDataSource {
-
 
 	/**
 	 * The default connection timeout, in milliseconds.
@@ -149,6 +150,25 @@ public class StingleHttpDataSource implements HttpDataSource {
 	}
 
 	@Override
+	public int getResponseCode() {
+		if (connection != null) {
+			try {
+				return connection.getResponseCode();
+			} catch (IOException e) {
+				Log.e(TAG, "Error getting response code", e);
+			}
+		}
+		return -1; // Return a default value in case of an error
+	}
+
+	@Override
+	public void addTransferListener(TransferListener transferListener) {
+		// If you use TransferListeners to monitor data transfers, implement the logic here
+		// For now, this can be left empty if you don't need it.
+	}
+
+
+	@Override
 	public long open(DataSpec dataSpec) throws HttpDataSourceException {
 		this.dataSpec = dataSpec;
 		this.bytesRead = 0;
@@ -174,7 +194,7 @@ public class StingleHttpDataSource implements HttpDataSource {
 			Map<String, List<String>> headers = connection.getHeaderFields();
 			closeConnectionQuietly();
 			InvalidResponseCodeException exception =
-					new InvalidResponseCodeException(responseCode, headers, dataSpec);
+					new InvalidResponseCodeException(responseCode,null,null, headers, dataSpec,null);
 			if (responseCode == 416) {
 				exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
 			}
@@ -183,9 +203,11 @@ public class StingleHttpDataSource implements HttpDataSource {
 
 		// Check for a valid content type.
 		String contentType = connection.getContentType();
-		if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
-			closeConnectionQuietly();
-			throw new InvalidContentTypeException(contentType, dataSpec);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			if (contentTypePredicate != null && !contentTypePredicate.test(contentType)) {
+				closeConnectionQuietly();
+				throw new InvalidContentTypeException(contentType, dataSpec);
+			}
 		}
 
 		// If we requested a range starting from a non-zero position and received a 200 rather than a
@@ -293,12 +315,8 @@ public class StingleHttpDataSource implements HttpDataSource {
 		return bytesToRead == C.LENGTH_UNSET ? bytesToRead : bytesToRead - bytesRead;
 	}
 
-	/**
-	 * Establishes a connection, following redirects to do so where permitted.
-	 */
 	private HttpURLConnection makeConnection(DataSpec dataSpec) throws IOException {
 		URL url = new URL(dataSpec.uri.toString());
-		byte[] postBody = dataSpec.postBody;
 		long position = dataSpec.position;
 		long length = dataSpec.length;
 		boolean allowGzip = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP);
@@ -306,25 +324,20 @@ public class StingleHttpDataSource implements HttpDataSource {
 		if (!allowCrossProtocolRedirects) {
 			// HttpURLConnection disallows cross-protocol redirects, but otherwise performs redirection
 			// automatically. This is the behavior we want, so use it.
-			return makeConnection(url, postBody, position, length, allowGzip, true /* followRedirects */);
+			return makeConnection(url, position, length, allowGzip, true /* followRedirects */);
 		}
 
-		// We need to handle redirects ourselves to allow cross-protocol redirects.
+		// Handle redirects manually to allow cross-protocol redirects.
 		int redirectCount = 0;
 		while (redirectCount++ <= MAX_REDIRECTS) {
-			HttpURLConnection connection = makeConnection(
-					url, postBody, position, length, allowGzip, false /* followRedirects */);
+			HttpURLConnection connection = makeConnection(url, position, length, allowGzip, false /* followRedirects */);
 			int responseCode = connection.getResponseCode();
 			if (responseCode == HttpURLConnection.HTTP_MULT_CHOICE
 					|| responseCode == HttpURLConnection.HTTP_MOVED_PERM
 					|| responseCode == HttpURLConnection.HTTP_MOVED_TEMP
 					|| responseCode == HttpURLConnection.HTTP_SEE_OTHER
-					|| (postBody == null
-					&& (responseCode == 307 /* HTTP_TEMP_REDIRECT */
-					|| responseCode == 308 /* HTTP_PERM_REDIRECT */))) {
-				// For 300, 301, 302, and 303 POST requests follow the redirect and are transformed into
-				// GET requests. For 307 and 308 POST requests are not redirected.
-				postBody = null;
+					|| (responseCode == 307 /* HTTP_TEMP_REDIRECT */
+					|| responseCode == 308 /* HTTP_PERM_REDIRECT */)) {
 				String location = connection.getHeaderField("Location");
 				connection.disconnect();
 				url = handleRedirect(url, location);
@@ -333,22 +346,11 @@ public class StingleHttpDataSource implements HttpDataSource {
 			}
 		}
 
-		// If we get here we've been redirected more times than are permitted.
+		// If we get here, we've been redirected more times than are permitted.
 		throw new NoRouteToHostException("Too many redirects: " + redirectCount);
 	}
 
-	/**
-	 * Configures a connection and opens it.
-	 *
-	 * @param url             The url to connect to.
-	 * @param postBody        The body data for a POST request.
-	 * @param position        The byte offset of the requested data.
-	 * @param length          The length of the requested data, or {@link C#LENGTH_UNSET}.
-	 * @param allowGzip       Whether to allow the use of gzip.
-	 * @param followRedirects Whether to follow redirects.
-	 */
-	private HttpURLConnection makeConnection(URL url, byte[] postBody, long position,
-											 long length, boolean allowGzip, boolean followRedirects) throws IOException {
+	private HttpURLConnection makeConnection(URL url, long position, long length, boolean allowGzip, boolean followRedirects) throws IOException {
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setConnectTimeout(connectTimeoutMillis);
 		connection.setReadTimeout(readTimeoutMillis);
@@ -372,23 +374,10 @@ public class StingleHttpDataSource implements HttpDataSource {
 			connection.setRequestProperty("Accept-Encoding", "identity");
 		}
 		connection.setInstanceFollowRedirects(followRedirects);
-		connection.setDoOutput(postBody != null);
-		if (postBody != null) {
-			connection.setRequestMethod("POST");
-			if (postBody.length == 0) {
-				connection.connect();
-			} else {
-				connection.setFixedLengthStreamingMode(postBody.length);
-				connection.connect();
-				OutputStream os = connection.getOutputStream();
-				os.write(postBody);
-				os.close();
-			}
-		} else {
-			connection.connect();
-		}
+		connection.connect();
 		return connection;
 	}
+
 
 	/**
 	 * Handles a redirect.
