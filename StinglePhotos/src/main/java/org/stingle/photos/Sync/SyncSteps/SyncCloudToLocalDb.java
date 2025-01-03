@@ -93,7 +93,7 @@ public class SyncCloudToLocalDb {
 		boolean needToUpdateUI = false;
 
 		try {
-			needToUpdateUI = getFileList(context);
+//			needToUpdateUI = getFileList(context);
 
 			Helpers.storePreference(context, SyncManager.PREF_LAST_SEEN_TIME, lastSeenTime);
 			Helpers.storePreference(context, SyncManager.PREF_TRASH_LAST_SEEN_TIME, lastTrashSeenTime);
@@ -101,7 +101,8 @@ public class SyncCloudToLocalDb {
 			Helpers.storePreference(context, SyncManager.PREF_ALBUM_FILES_LAST_SEEN_TIME, lastAlbumFilesSeenTime);
 			Helpers.storePreference(context, SyncManager.PREF_LAST_DEL_SEEN_TIME, lastDelSeenTime);
 			Helpers.storePreference(context, SyncManager.PREF_LAST_CONTACTS_SEEN_TIME, lastContactsSeenTime);
-		} catch (JSONException | RuntimeException e) {
+//		} catch (JSONException | RuntimeException e) {
+		} catch (RuntimeException e) {
 			e.printStackTrace();
 			downloader.setInputFinished();
 		}

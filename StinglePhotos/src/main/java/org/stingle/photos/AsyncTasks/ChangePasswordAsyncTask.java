@@ -72,7 +72,7 @@ public class ChangePasswordAsyncTask extends AsyncTask<Void, Void, Boolean> {
 			if (response.isStatusOk()) {
 				String token = response.get("token");
 				if (token != null) {
-					KeyManagement.setApiToken(activity, token);
+//					KeyManagement.setApiToken(activity, token);
 
 					StinglePhotosApplication.setKey(StinglePhotosApplication.getCrypto().getPrivateKey(newPassword));
 					BiometricsManagerWrapper.turnOffBiometrics(activity);

@@ -37,12 +37,12 @@ public class LoginAsyncTask extends AsyncTask<Void, Void, Boolean> {
 	private String email;
 	private String password;
 	private ProgressDialog progressDialog;
-	private StingleResponse response;
-	private Boolean isKeyBackedUp = true;
-	private String userId;
-	private String homeFolder;
-	private String token;
-	private JSONArray addons;
+//	private StingleResponse response;
+//	private Boolean isKeyBackedUp = true;
+//	private String userId;
+//	private String homeFolder;
+//	private String token;
+//	private JSONArray addons;
 	private boolean privateKeyIsAlreadySaved = false;
 	private boolean showBackupPhrase = false;
 
@@ -76,54 +76,55 @@ public class LoginAsyncTask extends AsyncTask<Void, Void, Boolean> {
 	@Override
 	protected Boolean doInBackground(Void... params) {
 
-		HashMap<String, String> postParams = new HashMap<String, String>();
+//		HashMap<String, String> postParams = new HashMap<String, String>();
 
-		postParams.put("email", email);
+//		postParams.put("email", email);
 
-		JSONObject resultJson = HttpsClient.postFunc(StinglePhotosApplication.getApiUrl() + activity.getString(R.string.pre_login_path), postParams);
-		response = new StingleResponse(this.activity, resultJson, false);
-
-
-		if (response.isStatusOk()) {
-			String salt = response.get("salt");
-			if (salt != null) {
-
-				final String loginHash = StinglePhotosApplication.getCrypto().getPasswordHashForStorage(password, salt);
-				Log.d("loginhash", loginHash);
-				HashMap<String, String> postParams2 = new HashMap<String, String>();
-
-				postParams2.put("email", email);
-				postParams2.put("password", loginHash);
-
-				JSONObject resultJson2 = HttpsClient.postFunc(StinglePhotosApplication.getApiUrl() + activity.getString(R.string.login_path), postParams2);
-				response = new StingleResponse(this.activity, resultJson2, false);
+//		JSONObject resultJson = HttpsClient.postFunc(StinglePhotosApplication.getApiUrl() + activity.getString(R.string.pre_login_path), postParams);
+//		response = new StingleResponse(this.activity, resultJson, false);
 
 
-				if (response.isStatusOk()) {
-					String keyBundle = response.get("keyBundle");
-					String serverPublicKey = response.get("serverPublicKey");
-					token = response.get("token");
-					userId = response.get("userId");
-					isKeyBackedUp = response.get("isKeyBackedUp").equals("1");
-					homeFolder = response.get("homeFolder");
-					addons = response.getArray("addons");
-					if (token != null && keyBundle != null && homeFolder != null && userId != null && token.length() > 0 && keyBundle.length() > 0 && homeFolder.length() > 0 && userId.length() > 0) {
+//		if (response.isStatusOk()) {
+//			String salt = response.get("salt");
+//			String salt = Helpers.generateSalt();
+//			if (salt != null) {
+
+//				final String loginHash = StinglePhotosApplication.getCrypto().getPasswordHashForStorage(password, salt);
+//				Log.d("loginhash", loginHash);
+//				HashMap<String, String> postParams2 = new HashMap<String, String>();
+
+//				postParams2.put("email", email);
+//				postParams2.put("password", loginHash);
+
+//				JSONObject resultJson2 = HttpsClient.postFunc(StinglePhotosApplication.getApiUrl() + activity.getString(R.string.login_path), postParams2);
+//				response = new StingleResponse(this.activity, resultJson2, false);
+
+
+//				if (response.isStatusOk()) {
+//					String keyBundle = response.get("keyBundle");
+//					String serverPublicKey = response.get("serverPublicKey");
+//					token = response.get("token");
+//					userId = response.get("userId");
+//					isKeyBackedUp = response.get("isKeyBackedUp").equals("1");
+//					homeFolder = response.get("homeFolder");
+//					addons = response.getArray("addons");
+//					if (token != null && keyBundle != null && homeFolder != null && userId != null && token.length() > 0 && keyBundle.length() > 0 && homeFolder.length() > 0 && userId.length() > 0) {
 						try {
 							if(privateKeyIsAlreadySaved) {
 								StinglePhotosApplication.setKey(StinglePhotosApplication.getCrypto().getPrivateKey(password));
 							}
-							else {
-								boolean importResult = KeyManagement.importKeyBundle(keyBundle, password);
-								KeyManagement.importServerPublicKey(serverPublicKey);
+//							else {
+//								boolean importResult = KeyManagement.importKeyBundle(keyBundle, password);
+//								KeyManagement.importServerPublicKey(serverPublicKey);
 
-								if (!importResult) {
-									return false;
-								}
+//								if (!importResult) {
+//									return false;
+//								}
 
-								if(isKeyBackedUp) {
-									StinglePhotosApplication.setKey(StinglePhotosApplication.getCrypto().getPrivateKey(password));
-								}
-							}
+//								if(isKeyBackedUp) {
+//									StinglePhotosApplication.setKey(StinglePhotosApplication.getCrypto().getPrivateKey(password));
+//								}
+//							}
 
 
 							return true;
@@ -131,13 +132,13 @@ public class LoginAsyncTask extends AsyncTask<Void, Void, Boolean> {
 							e.printStackTrace();
 							return false;
 						}
-					}
-				}
-			}
-		}
+//					}
+//				}
+//			}
+//		}
 
 
-		return false;
+//		return false;
 	}
 
 	private void gotoGallery(){
@@ -157,7 +158,8 @@ public class LoginAsyncTask extends AsyncTask<Void, Void, Boolean> {
 		if(result) {
 			LoginManager.disableLockTimer(activity);
 
-			if(!isKeyBackedUp && !privateKeyIsAlreadySaved){
+//			if(!isKeyBackedUp && !privateKeyIsAlreadySaved){
+			if(!privateKeyIsAlreadySaved){
 				MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
 				builder.setView(R.layout.dialog_enter_phrase);
 				builder.setCancelable(false);
@@ -205,28 +207,28 @@ public class LoginAsyncTask extends AsyncTask<Void, Void, Boolean> {
 			}
 
 		}
-		else{
-			progressDialog.dismiss();
-			if(response.areThereErrorInfos()) {
-				response.showErrorsInfos();
-			}
-			else {
-				Helpers.showAlertDialog(activity, activity.getString(R.string.error), activity.getString(R.string.fail_login));
-			}
-		}
+//		else{
+//			progressDialog.dismiss();
+//			if(response.areThereErrorInfos()) {
+//				response.showErrorsInfos();
+//			}
+//			else {
+//				Helpers.showAlertDialog(activity, activity.getString(R.string.error), activity.getString(R.string.fail_login));
+//			}
+//		}
 	}
 
 	private void loginSuccess(){
-		KeyManagement.setApiToken(activity, token);
-		Helpers.storePreference(activity, StinglePhotosApplication.USER_ID, userId);
+//		KeyManagement.setApiToken(activity, token);
+//		Helpers.storePreference(activity, StinglePhotosApplication.USER_ID, userId);
 		Helpers.storePreference(activity, StinglePhotosApplication.USER_EMAIL, email);
-		Helpers.storePreference(activity, StinglePhotosApplication.USER_HOME_FOLDER, homeFolder);
-		if(addons != null) {
-			Helpers.storePreference(activity, StinglePhotosApplication.SERVER_ADDONS, addons.toString());
-		}
+//		Helpers.storePreference(activity, StinglePhotosApplication.USER_HOME_FOLDER, homeFolder);
+//		if(addons != null) {
+//			Helpers.storePreference(activity, StinglePhotosApplication.SERVER_ADDONS, addons.toString());
+//		}
 
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
-		settings.edit().putBoolean(StinglePhotosApplication.IS_KEY_BACKED_UP, isKeyBackedUp).apply();
+//		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(activity);
+//		settings.edit().putBoolean(StinglePhotosApplication.IS_KEY_BACKED_UP, isKeyBackedUp).apply();
 
 		progressDialog.dismiss();
 		BiometricsManagerWrapper biometricsManagerWrapper = new BiometricsManagerWrapper(activity);

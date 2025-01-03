@@ -168,10 +168,10 @@ public class GalleryActivity extends AppCompatActivity
 		}
 	};
 	private boolean isImporting = false;
-	private boolean isSyncBarDisabled = false;
+//	private boolean isSyncBarDisabled = false;
 	private SharedPreferences sharedPreferences;
-	private boolean isSyncEnabled;
-	private SyncBarHandler syncBarHandler;
+//	private boolean isSyncEnabled;
+//	private SyncBarHandler syncBarHandler;
 	private FloatingActionButton fab;
 	private BottomNavigationView bottomNavigationView;
 	private ActionBarDrawerToggle toggle;
@@ -205,7 +205,7 @@ public class GalleryActivity extends AppCompatActivity
 		pullToRefresh = findViewById(R.id.pullToRefresh);
 		pullToRefresh.setOnRefreshListener(() -> {
 			SyncManager.stopSync(this);
-			SyncManager.startSync(this);
+//			SyncManager.startSync(this);
 			pullToRefresh.setRefreshing(false);
 		});
 
@@ -222,8 +222,8 @@ public class GalleryActivity extends AppCompatActivity
 		setupBottomNavigationView();
 		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-		syncBarHandler = new SyncBarHandler(this);
-		syncBarHandler.updateSyncBar();
+//		syncBarHandler = new SyncBarHandler(this);
+//		syncBarHandler.updateSyncBar();
 
 		if(savedInstanceState != null){
 			if(savedInstanceState.containsKey("set")) {
@@ -238,9 +238,9 @@ public class GalleryActivity extends AppCompatActivity
 			if(savedInstanceState.containsKey("fragment")) {
 				currentFragment = savedInstanceState.getInt("fragment");
 			}
-			if(savedInstanceState.containsKey("isSyncBarDisabled")) {
-				isSyncBarDisabled = savedInstanceState.getBoolean("isSyncBarDisabled");
-			}
+//			if(savedInstanceState.containsKey("isSyncBarDisabled")) {
+//				isSyncBarDisabled = savedInstanceState.getBoolean("isSyncBarDisabled");
+//			}
 			if(savedInstanceState.containsKey("albumsLastScrollPos")) {
 				albumsLastScrollPos = savedInstanceState.getInt("albumsLastScrollPos");
 			}
@@ -315,12 +315,12 @@ public class GalleryActivity extends AppCompatActivity
 	}
 
 	private void executeOnResume(){
-		isSyncEnabled = SyncManager.isBackupEnabled(this);
-		if (!isSyncEnabled) {
+//		isSyncEnabled = SyncManager.isBackupEnabled(this);
+//		if (!isSyncEnabled) {
 			disableSyncBar();
-		} else if (isSyncBarDisabled() && currentSet == SyncManager.GALLERY) {
-			enableSyncBar();
-		}
+//		} else if (isSyncBarDisabled() && currentSet == SyncManager.GALLERY) {
+//			enableSyncBar();
+//		}
 
 		if (!isImporting) {
 			SyncManager.startPeriodicWork(this);
@@ -349,7 +349,7 @@ public class GalleryActivity extends AppCompatActivity
 		outState.putInt("view", currentAlbumsView);
 		outState.putInt("fragment", currentFragment);
 		outState.putString("albumId", currentAlbumId);
-		outState.putBoolean("isSyncBarDisabled", isSyncBarDisabled);
+//		outState.putBoolean("isSyncBarDisabled", isSyncBarDisabled);
 		outState.putInt("albumsLastScrollPos", albumsLastScrollPos);
 		outState.putInt("sharingLastScrollPos", sharingLastScrollPos);
 	}
@@ -680,7 +680,7 @@ public class GalleryActivity extends AppCompatActivity
 					}
 				}
 				else{
-					SyncManager.startSync(this);
+//					SyncManager.startSync(this);
 				}
 				return;
 			}
@@ -712,17 +712,17 @@ public class GalleryActivity extends AppCompatActivity
 		}
 		if(!dontStartSyncYet){
 			if(FileManager.requestOldMediaPermissions(GalleryActivity.this)) {
-				SyncManager.startSync(this);
+//				SyncManager.startSync(this);
 			}
 		}
 		updateQuotaInfo();
 
-		byte[] serverPK = StinglePhotosApplication.getCrypto().getServerPublicKey();
-		if(serverPK == null){
-			(new GetServerPKAsyncTask(this)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
+//		byte[] serverPK = StinglePhotosApplication.getCrypto().getServerPublicKey();
+//		if(serverPK == null){
+//			(new GetServerPKAsyncTask(this)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//		}
 
-		AutoImportSetup.showAutoImportSetup(this);
+//		AutoImportSetup.showAutoImportSetup(this);
 		showBackupPhraseReminder();
 
 		// Check if delete after import is enabled and we are not storage manager, request for permission
@@ -737,22 +737,23 @@ public class GalleryActivity extends AppCompatActivity
 	}
 
 	public boolean isSyncBarDisabled(){
-		return isSyncBarDisabled;
+//		return isSyncBarDisabled;
+		return true;
 	}
 
 	public void disableSyncBar(){
-		isSyncBarDisabled = true;
-		syncBarHandler.hideSyncBar();
+//		isSyncBarDisabled = true;
+//		syncBarHandler.hideSyncBar();
 	}
 	public void enableSyncBar(){
-		if(isSyncEnabled) {
-			isSyncBarDisabled = false;
-			if(galleryFragment == null || (galleryFragment != null && galleryFragment.getFirstVisibleItemNumber() == 0)) {
-				syncBarHandler.showSyncBar();
-				syncBarHandler.showSyncBarAnimated();
-			}
-			syncBarHandler.updateSyncBar();
-		}
+//		if(isSyncEnabled) {
+//			isSyncBarDisabled = false;
+//			if(galleryFragment == null || (galleryFragment != null && galleryFragment.getFirstVisibleItemNumber() == 0)) {
+//				syncBarHandler.showSyncBar();
+//				syncBarHandler.showSyncBarAnimated();
+//			}
+//			syncBarHandler.updateSyncBar();
+//		}
 	}
 
 	private void handleIncomingIntent(Intent intent) {
@@ -792,7 +793,7 @@ public class GalleryActivity extends AppCompatActivity
 						}
 					}
 					dontStartSyncYet = false;
-					SyncManager.startSync(GalleryActivity.this);
+//					SyncManager.startSync(GalleryActivity.this);
 					isImporting = false;
 					checkLoginAndInit();
 				}
@@ -1080,16 +1081,16 @@ public class GalleryActivity extends AppCompatActivity
 
 	@Override
 	public void scrolledDown() {
-		if(!isSyncBarDisabled) {
-			syncBarHandler.hideSyncBarAnimated();
-		}
+//		if(!isSyncBarDisabled) {
+//			syncBarHandler.hideSyncBarAnimated();
+//		}
 	}
 
 	@Override
 	public void scrolledUp() {
-		if(!isSyncBarDisabled) {
-			syncBarHandler.showSyncBarAnimated();
-		}
+//		if(!isSyncBarDisabled) {
+//			syncBarHandler.showSyncBarAnimated();
+//		}
 	}
 
 
@@ -1249,7 +1250,7 @@ public class GalleryActivity extends AppCompatActivity
 						}
 					}
 					dontStartSyncYet = false;
-					SyncManager.startSync(GalleryActivity.this);
+//					SyncManager.startSync(GalleryActivity.this);
 				}
 			})).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}

@@ -23,7 +23,7 @@ public class SignUpAsyncTask extends AsyncTask<Void, Void, Boolean> {
 	protected String password;
 	protected Boolean isBackup;
 	protected ProgressDialog progressDialog;
-	protected StingleResponse response;
+//	protected StingleResponse response;
 
 
 	public SignUpAsyncTask(AppCompatActivity activity, String email, String password, Boolean isBackup){
@@ -58,12 +58,12 @@ public class SignUpAsyncTask extends AsyncTask<Void, Void, Boolean> {
 			postParams.put("isBackup", (isBackup ? "1" : "0"));
 			postParams.putAll(KeyManagement.getUploadKeyBundlePostParams(password, isBackup));
 
-			JSONObject resultJson = HttpsClient.postFunc(StinglePhotosApplication.getApiUrl() + activity.getString(R.string.registration_path), postParams);
-			response = new StingleResponse(this.activity, resultJson, false);
+//			JSONObject resultJson = HttpsClient.postFunc(StinglePhotosApplication.getApiUrl() + activity.getString(R.string.registration_path), postParams);
+//			response = new StingleResponse(this.activity, resultJson, false);
 
-			if (response.isStatusOk()) {
+//			if (response.isStatusOk()) {
 				return true;
-			}
+//			}
 		}
 		catch (CryptoException e) {
 			e.printStackTrace();
@@ -86,12 +86,12 @@ public class SignUpAsyncTask extends AsyncTask<Void, Void, Boolean> {
 			loginAsyncTask.execute();
 		}
 		else{
-			if(response.areThereErrorInfos()) {
-				response.showErrorsInfos();
-			}
-			else {
+//			if(response.areThereErrorInfos()) {
+//				response.showErrorsInfos();
+//			}
+//			else {
 				Helpers.showAlertDialog(activity, activity.getString(R.string.error), activity.getString(R.string.fail_reg));
-			}
+//			}
 		}
 
 	}

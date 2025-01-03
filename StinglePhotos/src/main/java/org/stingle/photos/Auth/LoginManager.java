@@ -326,9 +326,10 @@ public class LoginManager {
 
     public static boolean isLoggedIn(Context context){
         String email = Helpers.getPreference(context, StinglePhotosApplication.USER_EMAIL, null);
-        String token = KeyManagement.getApiToken(context);
+//        String token = KeyManagement.getApiToken(context);
 
-        if(email == null || token == null){
+//        if(email == null || token == null){
+        if(email == null){
             return false;
         }
 
@@ -367,19 +368,19 @@ public class LoginManager {
             final ProgressDialog spinner = Helpers.showProgressDialog(activity, activity.getString(R.string.logging_out), null);
             HashMap<String, String> postParams = new HashMap<String, String>();
             postParams.put("token", KeyManagement.getApiToken(activity));
-            HttpsClient.post(activity, StinglePhotosApplication.getApiUrl() + activity.getString(R.string.logout_path), postParams, new HttpsClient.OnNetworkFinish() {
-                @Override
-                public void onFinish(StingleResponse response) {
+//            HttpsClient.post(activity, StinglePhotosApplication.getApiUrl() + activity.getString(R.string.logout_path), postParams, new HttpsClient.OnNetworkFinish() {
+//                @Override
+//                public void onFinish(StingleResponse response) {
                     spinner.dismiss();
                     logoutLocally(activity);
-                    if (response.isStatusOk()) {
-                        Log.i("logout", "Successfully logged out from server");
-                    }
+//                    if (response.isStatusOk()) {
+//                        Log.i("logout", "Successfully logged out from server");
+//                    }
                     if(yes != null) {
                         yes.onClick(mDialog, which);
                     }
-                }
-            });
+//                }
+//            });
         }, no);
     }
 
